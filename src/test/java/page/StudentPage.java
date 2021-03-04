@@ -1,6 +1,7 @@
 package page;
 
 import com.codeborne.selenide.Selectors;
+import io.qameta.allure.Step;
 import org.openqa.selenium.By;
 
 import java.io.File;
@@ -48,6 +49,7 @@ public class StudentPage {
         $(".subjects-auto-complete__menu-list").$(byText(subject)).click();
     }
 
+    @Step("upload image")
     public void upload(By by, String fileName) {
         File file = new File("./src/test/resources/" + fileName);
         $(by).shouldBe(visible).uploadFile(file);
@@ -68,6 +70,7 @@ public class StudentPage {
         $(byText(city)).click();
     }
 
+    @Step("send form")
     public void sendForm(String selector) {
         $(selector).shouldBe(visible).scrollIntoView(true).click();
     }
