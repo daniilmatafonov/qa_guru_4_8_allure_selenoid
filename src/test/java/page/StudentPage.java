@@ -1,68 +1,78 @@
 package page;
 
-import com.codeborne.selenide.Selectors;
 import io.qameta.allure.Step;
-import org.openqa.selenium.By;
 
 import java.io.File;
 
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Condition.visible;
+import static com.codeborne.selenide.Selectors.byClassName;
 import static com.codeborne.selenide.Selectors.byText;
-import static com.codeborne.selenide.Selenide.$;
-import static com.codeborne.selenide.Selenide.$$;
+import static com.codeborne.selenide.Selenide.*;
 
 public class StudentPage {
 
-    public void fillFirstName(By by, String userName) {
-        $(by).shouldBe(visible).sendKeys(userName);
+    @Step("Заполнить имя")
+    public void fillFirstName(String userName) {
+        $("#firstName").setValue(userName);
     }
 
-    public void fillLastName(By by, String lastName) {
-        $(by).shouldBe(visible).sendKeys(lastName);
+    @Step("Заполнить фамилию")
+    public void fillLastName(String lastName) {
+        $("#lastName").setValue(lastName);
     }
 
-    public void fillEmail(By by, String email) {
-        $(by).shouldBe(visible).sendKeys(email);
+    @Step("Заполнить email")
+    public void fillEmail(String email) {
+        $("#userEmail").setValue(email);
     }
 
+    @Step("Задать пол")
     public void chooseGender(String gender) {
-        $(byText(gender)).shouldBe(visible).click();
+        $(byText(gender)).click();
     }
 
-    public void fillMobile(By by, String number) {
-        $(by).shouldBe(visible).sendKeys(number);
+    @Step("Заполнить номер телефона")
+    public void fillMobile(String number) {
+        $("#userNumber").setValue(number);
     }
 
-    public void setDatePicker(String date, String yearSelector, String monthSelector, String daySelector) {
-        String[] parsedDate = date.split("/");
+    @Step("Заполнить дату рождения")
+    public void setDatePicker(String day, String month, String year) {
+        String daySelector = ".react-datepicker__day";
+        String monthSelector = ".react-datepicker__month-select";
+        String yearSelector = ".react-datepicker__year-select";
         $("#dateOfBirthInput").click();
         $(yearSelector).click();
-        $(yearSelector).$$("option").findBy(text(parsedDate[2])).click();
+        $(yearSelector).$$("option").findBy(text(year)).click();
         $(monthSelector).click();
-        $(monthSelector).$$("option").findBy(text(parsedDate[1])).click();
-        $$(daySelector).findBy(text(parsedDate[0])).click();
+        $(monthSelector).$$("option").findBy(text(month)).click();
+        $$(daySelector).findBy(text(day)).click();
     }
 
-    public void fillSubject(By by, String firstTopicLetter, String subject) {
-        $(by).shouldBe(visible).setValue(firstTopicLetter);
+    @Step("Заполнить предмет")
+    public void fillSubject(String subject) {
+        $("#subjectsInput").setValue("Computer Science");
         $(".subjects-auto-complete__menu-list").$(byText(subject)).click();
     }
 
-    @Step("upload image")
-    public void upload(By by, String fileName) {
+    @Step("Загрузить фото")
+    public void upload(String fileName) {
         File file = new File("./src/test/resources/" + fileName);
-        $(by).shouldBe(visible).uploadFile(file);
+        $("#uploadPicture").uploadFile(file);
     }
 
+    @Step("Заполнить информацио о хобби")
     public void hobbies(String hobby) {
-        $(Selectors.byXpath(hobby)).shouldBe(visible).click();
+        $x("//label[contains(text(),'" + hobby + "')]").click();
     }
 
-    public void curAddress(String selector, String text) {
-        $(By.cssSelector(selector)).shouldBe(visible).sendKeys(text);
+    @Step("Заполнить адрес")
+    public void curAddress(String text) {
+        $("#currentAddress").setValue(text);
     }
 
+    @Step("Заполнить место проживания")
     public void location(String state, String city) {
         $("#state").shouldBe(visible).scrollIntoView(true).click();
         $(byText(state)).click();
@@ -70,8 +80,26 @@ public class StudentPage {
         $(byText(city)).click();
     }
 
-    @Step("send form")
-    public void sendForm(String selector) {
-        $(selector).shouldBe(visible).scrollIntoView(true).click();
+    @Step("Отправить форму")
+    public void sendForm() {
+        $("#submit").shouldBe(visible).scrollIntoView(true).click();
+    }
+
+    @Step("Проинвалидировать форму")
+    public void validateForm(String name, String gender, String email, String number,
+                             String month, String year, String day, String location, String address, String subject,
+                             String hobby, String image) {
+        $(byClassName("table-responsive")).shouldHave(text(name), text(location), text(email));
+
+        $x("//td[text()='Student Name']").parent().shouldHave(text(name));
+        $x("//td[text()='Student Email']").parent().shouldHave(text(email));
+        $x("//td[text()='Gender']").parent().shouldHave(text(gender));
+        $x("//td[text()='Mobile']").parent().shouldHave(text(number));
+        $x("//td[text()='Date of Birth']").parent().shouldHave(text(day + " " + month + "," + year));
+        $x("//td[text()='Subjects']").parent().shouldHave(text(subject));
+        $x("//td[text()='Picture']").parent().shouldHave(text(image));
+        $x("//td[text()='Hobbies']").parent().shouldHave(text(hobby));
+        $x("//td[text()='Address']").parent().shouldHave(text(address));
+        $x("//td[text()='State and City']").parent().shouldHave(text(location));
     }
 }

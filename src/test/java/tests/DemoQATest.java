@@ -1,42 +1,59 @@
 package tests;
 
+import com.github.javafaker.Faker;
 import data.Student;
-import data.StudentBuilder;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.openqa.selenium.By;
 import page.StudentPage;
 
+import static com.codeborne.selenide.Configuration.baseUrl;
 import static com.codeborne.selenide.Selenide.open;
 
-public class DemoQATest extends TestBase {
+public class DemoQATest {
 
     private StudentPage studentPage = new StudentPage();
+    private Faker faker = new Faker();
+    private static final String CITY = "Karnal";
+    private static final String STATE = "Haryana";
+    private static final String IMAGE_NAME = "mrburns.png";
+    private static final String HOBBY = "Sports";
+    private static final String SUBJECT = "Computer Science";
+    private static final String DATE = "1/September/1993";
+    private static final String DAY = "31";
+    private static final String MONTH = "August";
+    private static final String YEAR = "1993";
 
-    @Test
-    public void register() {
-        final Student student = createStudent("Daniil", "M", "test@mail.ru", "Male", "79000000000",
-                "1/September/1993", "Computer Science", "Sports", "mrburns.png", "Happy street", "Haryana", "Karnal");
-        open("/");
-        studentPage.fillFirstName(By.cssSelector("#firstName"), student.getFirstName());
-        studentPage.fillLastName(By.cssSelector("#lastName"), student.getLastName());
-        studentPage.fillEmail(By.cssSelector("#userEmail"), student.getEmail());
-        studentPage.chooseGender(student.getGender());
-        studentPage.fillMobile(By.cssSelector("#userNumber"), student.getMobileNumber());
-        studentPage.setDatePicker(student.getDate(), ".react-datepicker__year-select", ".react-datepicker__month-select", ".react-datepicker__day");
-        studentPage.fillSubject(By.cssSelector("#subjectsInput"), "C", student.getSubject());
-        studentPage.upload(By.cssSelector("#uploadPicture"), student.getFileName());
-        studentPage.hobbies("//label[contains(text(),'" + student.getHobby() + "')]");
-        studentPage.curAddress("#currentAddress", student.getCurAddress());
-        studentPage.location(student.getState(), student.getCity());
-        studentPage.sendForm("#submit");
+    @BeforeAll
+    public static void setUp() {
+        baseUrl = "https://demoqa.com/automation-practice-form";
     }
 
-    private Student createStudent(String firstName, String lastName,
-                                  String email, String gender, String mobileNumber,
-                                  String date, String subject, String hobby,
-                                  String fileName, String curAddress,
-                                  String state, String city) {
-        return new StudentBuilder(firstName, lastName, email, gender, mobileNumber, date, subject, hobby, fileName, curAddress, state, city).build();
+    @Test
+    public void registerStudent() {
+        String location = STATE + " " + CITY;
+        String firstName = faker.address().firstName();
+        String lastName = faker.address().lastName();
+        String name = firstName + " " + lastName;
+        String emailAddress = faker.internet().emailAddress();
+        String address = faker.address().fullAddress();
+        String cellPhone = "79" + faker.number().digits(8);
+        String gender = faker.demographic().sex();
+        final Student student = new Student(firstName, lastName, emailAddress, gender, cellPhone,
+                DATE, SUBJECT, HOBBY, IMAGE_NAME, address, STATE, CITY);
+        open("/");
+        studentPage.fillFirstName(student.getFirstName());
+        studentPage.fillLastName(student.getLastName());
+        studentPage.fillEmail(student.getEmail());
+        studentPage.chooseGender(student.getGender());
+        studentPage.fillMobile(student.getMobileNumber());
+        studentPage.setDatePicker(DAY, MONTH, YEAR);
+        studentPage.fillSubject(student.getSubject());
+        studentPage.upload(student.getFileName());
+        studentPage.hobbies(student.getHobby());
+        studentPage.curAddress(student.getCurAddress());
+        studentPage.location(student.getState(), student.getCity());
+        studentPage.sendForm();
+        studentPage.validateForm(name, student.getGender(), student.getEmail(), student.getMobileNumber(), MONTH, YEAR, DAY, location, student.getCurAddress(), student.getSubject(), student.getHobby(), student.getFileName());
     }
 
 }
