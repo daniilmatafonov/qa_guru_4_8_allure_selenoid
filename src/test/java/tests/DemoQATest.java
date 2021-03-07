@@ -9,7 +9,7 @@ import page.StudentPage;
 import static com.codeborne.selenide.Configuration.baseUrl;
 import static com.codeborne.selenide.Selenide.open;
 
-public class DemoQATest {
+public class DemoQATest extends TestBase{
 
     private StudentPage studentPage = new StudentPage();
     private Faker faker = new Faker();

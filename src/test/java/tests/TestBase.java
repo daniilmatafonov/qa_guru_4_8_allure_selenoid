@@ -17,7 +17,7 @@ public class TestBase {
     static void setup() {
         addListener("AllureSelenide", new AllureSelenide().screenshots(true).savePageSource(true));
         Configuration.browser = System.getProperty("browser", "chrome");
-        Configuration.startMaximized = true;
+        Configuration.pageLoadTimeout = 60000;
         baseUrl = "https://demoqa.com/automation-practice-form";
 
         if (System.getProperty("remote_driver") != null) {
